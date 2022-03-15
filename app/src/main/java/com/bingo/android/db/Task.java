@@ -12,8 +12,6 @@ public class Task extends DataSupport {
 
     private int id;
 
-    private int gid;
-
     private String name;
 
     private int state = TASK_UNFINISH; // todo
@@ -30,10 +28,6 @@ public class Task extends DataSupport {
 
     public int getId() {
         return id;
-    }
-
-    public void setGid(int gid) {
-        this.gid = gid;
     }
 
     public String getName() {

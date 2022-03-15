@@ -49,8 +49,6 @@ public class TaskFragment extends Fragment {
 
     private ArrayAdapter<String> adapter;
 
-    private ProgressDialog progressDialog;
-
     private List<String> dataList = new ArrayList<>();
 
     // 任务，子任务列表
@@ -87,6 +85,7 @@ public class TaskFragment extends Fragment {
         View view = View.inflate(getActivity(),R.layout.fragment_task,null);
 
         finishButton = view.findViewById(R.id.finishButton);
+
         listView = (ListView) view.findViewById(R.id.list_task);
         adapter = new ArrayAdapter<String>(
                 getActivity(), android.R.layout.simple_list_item_1, dataList
@@ -117,16 +116,16 @@ public class TaskFragment extends Fragment {
                 // 判断当前数据级别，决定调用不同方法
                 if (currentLevel == LEVEL_SUBTASK){
                     SubTask subTask = subTaskList.get(position);
-                    updateSubTask(subTask);
+                    showUpdateSubTask(subTask);
                 }else if (currentLevel == LEVEL_TASK){
                     Task task = taskList.get(position);
-                    updateTask(task);
+                    showUpdateTask(task);
                 }
                 return false;
             }
         });
 
-        /*  完成任务
+        /*  完成任务 // todo 重构 分函数
         * 奖励点数 = 子任务数 * 效率 * 质量
         * 效率：
         *       按时完成 = 1
@@ -164,10 +163,17 @@ public class TaskFragment extends Fragment {
 
         showTasks(); // 开始查询
 
-        // 显示桌面宠物
-        createPet();
-
         return view;
+    }
+
+    // 置于最前时调用，用于刷新ListView（如完成子任务后，需要刷新子任务列表）
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (currentLevel == LEVEL_SUBTASK)
+            showSubTasks();
+        else if (currentLevel == LEVEL_TASK)
+            showTasks();
     }
 
     // 菜单栏: 添加项目 返回
@@ -175,20 +181,7 @@ public class TaskFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add_item:
-                Intent intent;
-                switch (currentLevel){
-                    case LEVEL_SUBTASK:
-                        intent = new Intent(getActivity(), SubTaskChangeActivity.class);
-                        intent.putExtra("type", CREATE_ITEM);
-                        intent.putExtra("tid", selectedTask.getId());
-                        startActivityForResult(intent, LEVEL_SUBTASK);
-                        break;
-                    case LEVEL_TASK:
-                        intent = new Intent(getActivity(), TaskChangeActivity.class);
-                        intent.putExtra("type", CREATE_ITEM);
-                        startActivityForResult(intent, LEVEL_TASK);
-                        break;
-                }
+                showCreateItem();
                 break;
             case R.id.ret:
                 switch (currentLevel){
@@ -205,87 +198,24 @@ public class TaskFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
+    @Override  
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK)
             return;
         int type = data.getIntExtra("type", -1);
-        int id = data.getIntExtra("id", -1);
-        switch (requestCode) {
-            case LEVEL_SUBTASK:
-                // 找到subTask
-                // todo
-                SubTask subTask = null;
-                if (type == CREATE_ITEM)
-                    subTask = new SubTask();
-                else if (id != -1 && (type == CHANGE_ITEM || type == DELETE_ITEM ) ) {
-                    for (int i = 0; i < subTaskList.size(); i++) {
-                        subTask = subTaskList.get(i);
-                        if (subTask != null && subTask.getId() == id) {
-                            break;
-                        }
-                    }
-                    if (subTask == null || subTask.getId() != id)
-                        return;
-                }
-                else
-                    return;
-                // 处理subTask：增删改; task的子任务数
-                Task belongTask = DataSupport.find(Task.class, data.getIntExtra("tid", -1));
-                long totalCnt = -1;
-                if (belongTask != null)
-                    totalCnt = belongTask.getTotalCnt();
+        if (requestCode == LEVEL_SUBTASK){
+            if (type == CREATE_ITEM) createSubTask(data);
+            else if (type == DELETE_ITEM) deleteSubTask(data);
+            else if (type == CHANGE_ITEM) changeSubTask(data);
 
-                if (type == DELETE_ITEM){
-                    subTask.delete();
-                    totalCnt--;
-                }else{
-                    if (type == CREATE_ITEM)
-                        totalCnt++;
-                    subTask.setName(data.getStringExtra("name"));
-                    subTask.setTid(selectedTask.getId());
-                    subTask.setFinish(false);
-                    subTask.save();
-                }
-                belongTask.setTotalCnt(totalCnt);
-                belongTask.save();
-                showSubTasks();
-                break;
-            case LEVEL_TASK:
-                // 找到Task
-                Task task = null;
-                if (type == CREATE_ITEM)
-                    task = new Task();
-                else if (id != -1 && (type == CHANGE_ITEM || type == DELETE_ITEM ) ) {
-                    for (int i = 0; i < taskList.size(); i++) {
-                        task = taskList.get(i);
-                        if (task != null && task.getId() == id) {
-                            break;
-                        }
-                    }
-                    if (task == null || task.getId() != id)
-                        return;
-                }
-                else
-                    return;
-                // 处理Task：增删改
-                if (type == DELETE_ITEM){
-                    task.delete();
-                    //todo 同时删除subTask
-                }else {
-                    task.setName(data.getStringExtra("name"));
-                    try { // 设置起止时间
-                        task.setStart_time(format.parse(data.getStringExtra("start_time")));
-                        task.setEnd_time(format.parse(data.getStringExtra("end_time")));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    task.save();
-                }
-                showTasks();
-                break;
+            showSubTasks();
+        } else if (requestCode == LEVEL_TASK){
+            if (type == CREATE_ITEM) createTask(data);
+            else if (type == DELETE_ITEM) deleteTask(data);
+            else if (type == CHANGE_ITEM) changeTask(data);
+
+            showTasks();
         }
     }
 
@@ -316,7 +246,7 @@ public class TaskFragment extends Fragment {
         // 更新list
         dataList.clear();
         for (SubTask subTask : subTaskList) {
-            dataList.add(subTask.getName());
+            dataList.add((subTask.isFinish()?"✔ ":"") + subTask.getName());
         }
         adapter.notifyDataSetChanged();
         listView.setSelection(0);
@@ -337,7 +267,7 @@ public class TaskFragment extends Fragment {
     }
 
     // 长按子任务，跳转到修改页面
-    private void updateSubTask(SubTask subTask){
+    private void showUpdateSubTask(SubTask subTask){
         Intent intent = new Intent(getActivity(), SubTaskChangeActivity.class);
         intent.putExtra("type", CHANGE_ITEM);
         intent.putExtra("id", subTask.getId());
@@ -348,7 +278,7 @@ public class TaskFragment extends Fragment {
     }
 
     // 长按  任务，跳转到修改页面
-    private void updateTask(Task task){
+    private void showUpdateTask(Task task){
         Intent intent = new Intent(getActivity(), TaskChangeActivity.class);
         intent.putExtra("type", CHANGE_ITEM);
         intent.putExtra("id", task.getId());
@@ -359,104 +289,102 @@ public class TaskFragment extends Fragment {
         startActivityForResult(intent, LEVEL_TASK);
     }
 
-    // todo 服务器 * 3 method
-    /**
-     *  从服务器上查询所有数据。
-     */
-    private void update(){
-        String address = "http://localhost:8080/";
-
-//            queryFromServer(address, "taskGroup");
-
-//            int taskGroupCode = selectedTaskGroup.getTaskGroupCode();
-//            String address = "http://guolin.tech/api/china/" + taskGroupCode;
-//            queryFromServer(address, "task");
-
-        // 去服务器查询数据
-//            int taskGroupCode = selectedTaskGroup.getTaskGroupCode();
-//            int taskCode = selectedTask.getTaskCode();
-//            String address = "http://guolin.tech/api/china/" + taskGroupCode + "/" + taskCode;
-//            queryFromServer(address, "subTask");
-    }
-
-    /**
-     *  从服务器上查询某类数据，存到本地数据库。
-     */
-    private void queryFromServer(String address, final String type) {
-        // 发送请求
-//        HttpUtil.sendOkHttpRequest(address, new Callback() {
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                String responseText = response.body().string();
-//                boolean result = false;
-        // 根据查询的数据类型，处理响应，存到数据库
-//                if ("taskGroup".equals(type)) {
-//                    result = Utility.handleTaskGroupResponse(responseText);
-//                } else if ("task".equals(type)) {
-//                    result = Utility.handleTaskResponse(responseText, selectedTaskGroup.getId());
-//                } else if ("subTask".equals(type)) {
-//                    result = Utility.handleSubTaskResponse(responseText, selectedTask.getId());
-//                }
-//                if (result) {
-//                    // 通过runOnUiThread()方法回到主线程处理逻辑
-//                    getActivity().runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            closeProgressDialog();
-        // 重新在本地查询并显示之前去服务器查的数据
-//                            if ("taskGroup".equals(type)) {
-//                                queryTaskGroups();
-//                            } else if ("task".equals(type)) {
-//                                queryTasks();
-//                            } else if ("subTask".equals(type)) {
-//                                showSubTasks();
-//                            }
-//                        }
-//                    });
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                // 通过runOnUiThread()方法回到主线程处理逻辑
-//                getActivity().runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        closeProgressDialog();
-//                        Toast.makeText(getContext(), "加载失败", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            }
-//        });
-    }
-
-    /**
-     * 关闭进度对话框
-     */
-    private void closeProgressDialog() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
+    // 通过+，跳转到创建页面 创建子任务或任务
+    private void showCreateItem(){
+        Intent intent;
+        if (currentLevel == LEVEL_SUBTASK){
+            intent = new Intent(getActivity(), SubTaskChangeActivity.class);
+            intent.putExtra("type", CREATE_ITEM);
+            intent.putExtra("tid", selectedTask.getId());
+            startActivityForResult(intent, LEVEL_SUBTASK);
+        } else if (currentLevel == LEVEL_TASK){
+            intent = new Intent(getActivity(), TaskChangeActivity.class);
+            intent.putExtra("type", CREATE_ITEM);
+            startActivityForResult(intent, LEVEL_TASK);
         }
     }
 
-    /** 显示桌面宠物 */ // todo pet
-    private void createPet(){
-    /*
-        var layoutParam = new WindowManager.LayoutParams().apply {
-            //设置大小 自适应
-            width = WRAP_CONTENT;
-            height = WRAP_CONTENT;
-            flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL || WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-        };
-// 新建悬浮窗控件
-        View floatRootView = LayoutInflater.from(this).inflate(R.layout.activity_float_item, null);
-//设置拖动事件
-        floatRootView.setOnTouchListener(View.OnTouchListener ()->{
-            return false;
-        });
-// 将悬浮窗控件添加到WindowManager
-        windowManager.addView(floatRootView, layoutParam);
-    */
+    private void createTask(Intent data){
+        // 创建task 并设置信息
+        Task task = new Task();
 
-}
+        task.setName(data.getStringExtra("name"));
+        try { // 设置起止时间
+            task.setStart_time(format.parse(data.getStringExtra("start_time")));
+            task.setEnd_time(format.parse(data.getStringExtra("end_time")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        task.save();
+    }
+
+    private void createSubTask(Intent data){
+        // 创建subTask 并设置信息
+        SubTask subTask = new SubTask();
+
+        subTask.setName(data.getStringExtra("name"));
+        subTask.setTid(selectedTask.getId());
+        subTask.setFinish(false);
+        subTask.save();
+
+        // 修改 task 的子任务个数
+        Task belongTask = DataSupport.find(
+                Task.class, data.getIntExtra("tid", -1));
+        belongTask.setTotalCnt(belongTask.getTotalCnt()+1);
+        belongTask.save();
+    }
+
+    private void deleteTask(Intent data){
+        // 找到task 并删除
+        int id = data.getIntExtra("id", -1);
+        Task task = DataSupport.find(Task.class, id);
+        if (task == null) return;
+
+        task.delete();
+
+        //todo 同时删除subTask
+    }
+
+    private void deleteSubTask(Intent data){
+        // 找到subTask 并删除
+        int id = data.getIntExtra("id", -1);
+        SubTask subTask = DataSupport.find(SubTask.class, id);
+        if (subTask == null) return;
+
+        subTask.delete();
+
+        // 修改 task 的子任务个数
+        Task belongTask = DataSupport.find(
+                Task.class, data.getIntExtra("tid", -1));
+        belongTask.setTotalCnt(belongTask.getTotalCnt()-1);
+        belongTask.save();
+    }
+
+    private void changeTask(Intent data){
+        // 找到 Task 并设置信息
+        int id = data.getIntExtra("id", -1);
+        Task task = DataSupport.find(Task.class, id);
+        if (task == null) return;
+
+        task.setName(data.getStringExtra("name"));
+        try { // 设置起止时间
+            task.setStart_time(format.parse(data.getStringExtra("start_time")));
+            task.setEnd_time(format.parse(data.getStringExtra("end_time")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        task.save();
+    }
+
+    private void changeSubTask(Intent data){
+        // 找到subTask 并设置信息
+        int id = data.getIntExtra("id", -1);
+        SubTask subTask = DataSupport.find(SubTask.class, id);
+        if (subTask == null) return;
+
+        subTask.setName(data.getStringExtra("name"));
+        subTask.setTid(selectedTask.getId());
+        subTask.setFinish(false);
+        subTask.save();
+    }
 }

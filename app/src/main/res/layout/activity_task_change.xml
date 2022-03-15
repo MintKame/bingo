@@ -69,7 +69,7 @@
                     android:id="@+id/taskDelButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="确定" />
+                    android:text="删除" />
 
             </LinearLayout>
 
