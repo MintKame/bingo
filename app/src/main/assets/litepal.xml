@@ -1,0 +1,12 @@
+<litepal>
+    <dbname value="bingo">
+        <version value="1"/>
+        <list>
+            <mapping class="com.bingo.android.db.Child"/>
+            <mapping class="com.bingo.android.db.Parent"/>
+            <mapping class="com.bingo.android.db.Reward"/>
+            <mapping class="com.bingo.android.db.SubTask"/>
+            <mapping class="com.bingo.android.db.Task"/> 
+        </list>
+    </dbname>
+</litepal>
