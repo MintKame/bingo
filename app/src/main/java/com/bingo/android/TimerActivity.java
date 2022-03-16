@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.bingo.android.db.SubTask;
 import com.bingo.android.db.Task;
+import com.bingo.android.view.TimeView;
 
 import org.litepal.crud.DataSupport;
 
@@ -20,6 +21,8 @@ public class TimerActivity extends AppCompatActivity {
     Button startButton, exitButton, finishButton;
 
     TextView tmpTime, taskTime, contentText;
+
+    TimeView timeView;
 
     long tmpDuration = 0, taskDuration;
 
@@ -39,10 +42,12 @@ public class TimerActivity extends AppCompatActivity {
         startButton = findViewById(R.id.startButton);
         exitButton = findViewById(R.id.exitButton);
         finishButton = findViewById(R.id.finishButton);
+
+        timeView = findViewById(R.id.timer);
         tmpTime = findViewById(R.id.tmpTime);
         taskTime = findViewById(R.id.taskTime);
-        contentText = findViewById(R.id.contentText);
 
+        contentText = findViewById(R.id.contentText);
         // 处理传入信息
         Intent oldIntent = getIntent();
         int tid = oldIntent.getIntExtra("tid", -1);
@@ -92,6 +97,8 @@ public class TimerActivity extends AppCompatActivity {
         });
 
         countTimer(); // 开始每秒处理一次
+
+//        timeView.
     }
 
     private void countTimer(){
@@ -104,6 +111,7 @@ public class TimerActivity extends AppCompatActivity {
             tmpDuration ++;
             taskTime.setText(convert(taskDuration));
             tmpTime.setText(convert(tmpDuration));
+            timeView.rotate();
         }
         countTimer();
     };

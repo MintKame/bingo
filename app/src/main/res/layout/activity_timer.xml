@@ -8,9 +8,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
-
+        android:orientation="vertical">
+<!--        todo -->
         <TextView
             android:id="@+id/contentText"
             android:layout_width="match_parent"
@@ -29,10 +28,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="本次计时" />
+                android:text="任务计时" />
 
             <TextView
-                android:id="@+id/tmpTime"
+                android:id="@+id/taskTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="50dp"
@@ -52,10 +51,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="任务计时" />
+                android:text="本次计时" />
 
             <TextView
-                android:id="@+id/taskTime"
+                android:id="@+id/tmpTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="50dp"
@@ -87,7 +86,22 @@
                 android:layout_height="wrap_content"
                 android:text="完成" />
         </LinearLayout>
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/timer_bg"
+                />
+            <com.bingo.android.view.TimeView
+                android:id="@+id/timer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
+        </FrameLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

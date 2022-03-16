@@ -102,8 +102,6 @@ public class TaskFragment extends Fragment {
                     showSubTasks();
                 } else if (currentLevel == LEVEL_SUBTASK) {
                     selectedSubTask = subTaskList.get(position);
-                    // todo 由于上次完成子任务后，直接退出，子任务列表未更新，get获取的仍未未完成状态
-                    selectedSubTask = DataSupport.find(SubTask.class, selectedSubTask.getId());
                     showTimer();
                 }
             }
@@ -125,7 +123,7 @@ public class TaskFragment extends Fragment {
             }
         });
 
-        /*  完成任务 // todo 重构 分函数
+        /*  完成任务
         * 奖励点数 = 子任务数 * 效率 * 质量
         * 效率：
         *       按时完成 = 1
@@ -133,16 +131,9 @@ public class TaskFragment extends Fragment {
         * 质量：
         *       家长决定 // todo
         * */
+        // todo toast没有显示
         finishButton.setOnClickListener((View v)->{
-            if (currentLevel != LEVEL_SUBTASK){
-                Toast.makeText(getContext(), "错误：未选择任务", Toast.LENGTH_SHORT).show();
-                return;
-            }
             selectedTask = DataSupport.find(Task.class, selectedTask.getId());
-            if (selectedTask.getState() != Task.TASK_UNFINISH){
-                Toast.makeText(getContext(), "错误：已完成", Toast.LENGTH_SHORT).show();
-                return;
-            }
             if (selectedTask.getFinishCnt() < selectedTask.getTotalCnt()){
                 Toast.makeText(getContext(), "未完成所有子任务", Toast.LENGTH_SHORT).show();
                 return;
@@ -150,15 +141,15 @@ public class TaskFragment extends Fragment {
             // 计算奖励
             long points = selectedTask.getTotalCnt(); // 子任务数
             boolean inTime =  new Date().before(selectedTask.getEnd_time()); // 按时
-            if (!inTime){
-                points *= 0.5;
-                selectedTask.setState(Task.TASK_OUT);
-            }else
-                selectedTask.setState(Task.TASK_IN);
-            selectedTask.save();
-            Toast.makeText(getContext(), "获得奖励：" + points, Toast.LENGTH_SHORT).show();
+            if (!inTime) points *= 0.5;
+            // 存到账号
             MainActivity.child.setPoint((int) (MainActivity.child.getPoint() + points));
             MainActivity.child.save();
+            // 提醒
+            Toast.makeText(getContext(), "获得奖励：" + points, Toast.LENGTH_LONG).show();
+            // 删除任务
+            deleteTask(selectedTask.getId());
+            showTasks();
         });
 
         showTasks(); // 开始查询
@@ -198,7 +189,7 @@ public class TaskFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override  
+    @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK)
@@ -206,13 +197,13 @@ public class TaskFragment extends Fragment {
         int type = data.getIntExtra("type", -1);
         if (requestCode == LEVEL_SUBTASK){
             if (type == CREATE_ITEM) createSubTask(data);
-            else if (type == DELETE_ITEM) deleteSubTask(data);
+            else if (type == DELETE_ITEM) deleteSubTask(data.getIntExtra("id", -1));
             else if (type == CHANGE_ITEM) changeSubTask(data);
 
             showSubTasks();
         } else if (requestCode == LEVEL_TASK){
             if (type == CREATE_ITEM) createTask(data);
-            else if (type == DELETE_ITEM) deleteTask(data);
+            else if (type == DELETE_ITEM) deleteTask(data.getIntExtra("id", -1));
             else if (type == CHANGE_ITEM) changeTask(data);
 
             showTasks();
@@ -334,28 +325,30 @@ public class TaskFragment extends Fragment {
         belongTask.save();
     }
 
-    private void deleteTask(Intent data){
+    private void deleteTask(int id){
         // 找到task 并删除
-        int id = data.getIntExtra("id", -1);
         Task task = DataSupport.find(Task.class, id);
         if (task == null) return;
 
         task.delete();
 
-        //todo 同时删除subTask
+        // 同时删除subTask
+        List<SubTask> subTasks = DataSupport.where("tid = ?", Integer.toString(id))
+                                            .find(SubTask.class);
+        for (SubTask subTask : subTasks) {
+            subTask.delete();
+        }
     }
 
-    private void deleteSubTask(Intent data){
+    private void deleteSubTask(int id){ // todo
         // 找到subTask 并删除
-        int id = data.getIntExtra("id", -1);
         SubTask subTask = DataSupport.find(SubTask.class, id);
         if (subTask == null) return;
 
         subTask.delete();
 
         // 修改 task 的子任务个数
-        Task belongTask = DataSupport.find(
-                Task.class, data.getIntExtra("tid", -1));
+        Task belongTask = DataSupport.find(Task.class, subTask.getTid());
         belongTask.setTotalCnt(belongTask.getTotalCnt()-1);
         belongTask.save();
     }
