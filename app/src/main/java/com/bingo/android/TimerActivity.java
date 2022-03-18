@@ -71,7 +71,6 @@ public class TimerActivity extends AppCompatActivity {
         });
 
         // btn finish
-        // todo task页面展示 subtask完成（标志）
         finishButton.setOnClickListener((View view)->{
             subTask.setFinish(true);
             subTask.save();
@@ -97,8 +96,6 @@ public class TimerActivity extends AppCompatActivity {
         });
 
         countTimer(); // 开始每秒处理一次
-
-//        timeView.
     }
 
     private void countTimer(){

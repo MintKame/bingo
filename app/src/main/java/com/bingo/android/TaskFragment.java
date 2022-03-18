@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.List;
 
 public class TaskFragment extends Fragment {
+    static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd");    // 转换的时间格式
+
     public static final int LEVEL_TASK = 1;
 
     public static final int LEVEL_SUBTASK = 2;
@@ -41,8 +43,6 @@ public class TaskFragment extends Fragment {
     public static final int CHANGE_ITEM = 4;
 
     public static final int DELETE_ITEM = 5;
-
-    static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd");    // 转换的时间格式
 
     // view
     private ListView listView;
@@ -131,7 +131,6 @@ public class TaskFragment extends Fragment {
         * 质量：
         *       家长决定 // todo
         * */
-        // todo toast没有显示
         finishButton.setOnClickListener((View v)->{
             selectedTask = DataSupport.find(Task.class, selectedTask.getId());
             if (selectedTask.getFinishCnt() < selectedTask.getTotalCnt()){
@@ -294,36 +293,22 @@ public class TaskFragment extends Fragment {
             startActivityForResult(intent, LEVEL_TASK);
         }
     }
+    /*
+        任务的增删改
+     */
+    private void setTask(Intent data, Task task){
+        task.setName(data.getStringExtra("name"));
+        task.setStart_time((Date) data.getSerializableExtra("start_time"));
+        task.setEnd_time( (Date) data.getSerializableExtra("end_time"));
+    }
 
     private void createTask(Intent data){
         // 创建task 并设置信息
         Task task = new Task();
-
-        task.setName(data.getStringExtra("name"));
-        try { // 设置起止时间
-            task.setStart_time(format.parse(data.getStringExtra("start_time")));
-            task.setEnd_time(format.parse(data.getStringExtra("end_time")));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        setTask(data, task);
         task.save();
     }
 
-    private void createSubTask(Intent data){
-        // 创建subTask 并设置信息
-        SubTask subTask = new SubTask();
-
-        subTask.setName(data.getStringExtra("name"));
-        subTask.setTid(selectedTask.getId());
-        subTask.setFinish(false);
-        subTask.save();
-
-        // 修改 task 的子任务个数
-        Task belongTask = DataSupport.find(
-                Task.class, data.getIntExtra("tid", -1));
-        belongTask.setTotalCnt(belongTask.getTotalCnt()+1);
-        belongTask.save();
-    }
 
     private void deleteTask(int id){
         // 找到task 并删除
@@ -334,10 +319,46 @@ public class TaskFragment extends Fragment {
 
         // 同时删除subTask
         List<SubTask> subTasks = DataSupport.where("tid = ?", Integer.toString(id))
-                                            .find(SubTask.class);
+                .find(SubTask.class);
         for (SubTask subTask : subTasks) {
             subTask.delete();
         }
+    }
+
+    private void changeTask(Intent data){
+        // 找到 Task 并设置信息
+        int id = data.getIntExtra("id", -1);
+        Task task = DataSupport.find(Task.class, id);
+        if (task == null) return;
+
+        setTask(data, task);
+
+        task.save();
+    }
+
+        /*
+            子任务的增删改
+         */
+        private void setSubTask(Intent data, SubTask subTask){
+            subTask.setName(data.getStringExtra("name"));
+            subTask.setTid(selectedTask.getId());
+            subTask.setFinish(false);
+        }
+
+
+        private void createSubTask(Intent data){
+        // 创建subTask 并设置信息
+        SubTask subTask = new SubTask();
+
+        setSubTask(data, subTask);
+
+        subTask.save();
+
+        // 修改 task 的子任务个数
+        Task belongTask = DataSupport.find(
+                Task.class, data.getIntExtra("tid", -1));
+        belongTask.setTotalCnt(belongTask.getTotalCnt()+1);
+        belongTask.save();
     }
 
     private void deleteSubTask(int id){ // todo
@@ -353,31 +374,16 @@ public class TaskFragment extends Fragment {
         belongTask.save();
     }
 
-    private void changeTask(Intent data){
-        // 找到 Task 并设置信息
-        int id = data.getIntExtra("id", -1);
-        Task task = DataSupport.find(Task.class, id);
-        if (task == null) return;
-
-        task.setName(data.getStringExtra("name"));
-        try { // 设置起止时间
-            task.setStart_time(format.parse(data.getStringExtra("start_time")));
-            task.setEnd_time(format.parse(data.getStringExtra("end_time")));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        task.save();
-    }
-
     private void changeSubTask(Intent data){
         // 找到subTask 并设置信息
         int id = data.getIntExtra("id", -1);
         SubTask subTask = DataSupport.find(SubTask.class, id);
         if (subTask == null) return;
 
-        subTask.setName(data.getStringExtra("name"));
-        subTask.setTid(selectedTask.getId());
-        subTask.setFinish(false);
+        setSubTask(data, subTask);
+
         subTask.save();
     }
+
+
 }

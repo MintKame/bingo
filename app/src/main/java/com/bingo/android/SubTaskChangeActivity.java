@@ -5,8 +5,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class SubTaskChangeActivity extends AppCompatActivity {
     EditText editSubTaskName;
@@ -40,14 +43,21 @@ public class SubTaskChangeActivity extends AppCompatActivity {
 
         // btn confirm task
         subtaskConfirmButton.setOnClickListener((View view)->{
+            // 错误处理
+            String name = editSubTaskName.getText().toString();
+            if (StringUtils.isEmpty(name)){
+                Toast.makeText(this, "请输入子任务内容", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // 传数据
             Intent newIntent = new Intent();
             newIntent.putExtra("type", type);
-            newIntent.putExtra("name", editSubTaskName.getText().toString());
+            newIntent.putExtra("name", name);
             if (type ==  TaskFragment.CHANGE_ITEM){
                 newIntent.putExtra("id", oldIntent.getIntExtra("id", -1));
             }
             newIntent.putExtra("tid", oldIntent.getIntExtra("tid", -1));
-            setResult(RESULT_OK, newIntent); //todo 处理错误输入，task，group，subt
+            setResult(RESULT_OK, newIntent);
             finish();
         });
 

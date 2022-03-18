@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bingo.android.db.Reward;
+import com.bingo.android.db.SubTask;
+import com.bingo.android.db.Task;
 
 import org.litepal.crud.DataSupport;
 
@@ -75,7 +77,6 @@ public class RewardFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // todo 按兑换
                 int point = MainActivity.child.getPoint();
                 int usePoint = rewardList.get(position).getTake_points();
                 if (point < usePoint){
@@ -109,7 +110,7 @@ public class RewardFragment extends Fragment {
 
         getActivity().setTitle("可用点数     " + MainActivity.child.getPoint());
 
-        queryReward(); // 开始查询
+        showRewards(); // 开始查询
 
         return view;
     }
@@ -137,39 +138,15 @@ public class RewardFragment extends Fragment {
             return;
         int type = data.getIntExtra("type", -1);
         int id = data.getIntExtra("id", -1);
-        switch (requestCode) {
-            case LEVEL_REWARD:
-                // 先得到reward对象
-                Reward reward = null;
-                if (type == CREATE_REWARD) // 增
-                    reward = new Reward();
-                else if (id != -1 && (type == CHANGE_REWARD || type == DELETE_REWARD)){ // 删改
-                    for (int i = 0; i < rewardList.size(); i++) {
-                        reward = rewardList.get(i);
-                        if (reward != null && reward.getId() == id) {
-                            break;
-                        }
-                    }
-                    if (reward == null || reward.getId() != id)
-                        return;
-                }
-                else
-                    return;
-                // 处理reward
-                if (type == DELETE_REWARD){ // 删
-                    reward.delete();
-                }else { // 增 改
-                    reward.setName(data.getStringExtra("name"));
-                    reward.setTake_points(Integer.valueOf(data.getStringExtra("point")));
-                    reward.setState(false); // todo
-                    reward.save();
-                }
-                queryReward();
-                break;
+        if (requestCode == LEVEL_REWARD){
+            if (type == CREATE_REWARD) createReward(data);
+            else if (type == DELETE_REWARD) deleteReward(data.getIntExtra("id", -1));
+            else if (type == CHANGE_REWARD) createReward(data);
+            showRewards();
         }
     }
 
-    private void queryReward() {
+    private void showRewards() {
         // 查找
         rewardList = DataSupport.findAll(Reward.class);
         // 更新list
@@ -179,5 +156,41 @@ public class RewardFragment extends Fragment {
         }
         adapter.notifyDataSetChanged();
         listView.setSelection(0);
+    }
+
+    /*
+        奖励的增删改
+     */
+    private void setReward(Intent data, Reward reward){
+        reward.setName(data.getStringExtra("name"));
+        reward.setTake_points(data.getIntExtra("point", 0));
+        reward.setState(false);
+    }
+
+    private void createReward(Intent data){
+        // 创建 并设置信息
+        Reward reward = new Reward();
+
+        setReward(data, reward);
+        reward.save();
+    }
+
+    private void deleteReward(int id){
+        // 找到 并删除
+        Reward reward = DataSupport.find(Reward.class, id);
+        if (reward == null) return;
+
+        reward.delete();
+    }
+
+
+    private void changeReward(Intent data){
+        // 找到 并设置信息
+        int id = data.getIntExtra("id", -1);
+        Reward reward = DataSupport.find(Reward.class, id);
+        if (reward == null) return;
+
+        setReward(data, reward);
+        reward.save();
     }
 }

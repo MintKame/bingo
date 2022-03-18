@@ -11,7 +11,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.bingo.android.R;
-// todo
+
 public class TimeView extends View {
     private Paint mPaint;
     private Bitmap ssBitmap = null;

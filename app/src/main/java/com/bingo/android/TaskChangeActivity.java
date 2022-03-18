@@ -10,10 +10,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Calendar;
+import java.util.Date;
 
 public class TaskChangeActivity extends AppCompatActivity {
+    static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd");    // 转换的时间格式
+
     EditText editTaskName, editFromDate, editToDate;
     Button taskCancelButton, taskConfirmButton, taskDelButton;
     @Override
@@ -48,15 +58,34 @@ public class TaskChangeActivity extends AppCompatActivity {
 
         // btn confirm task
         taskConfirmButton.setOnClickListener((View view)->{
+            // 错误处理
+            String name = editTaskName.getText().toString();
+            if (StringUtils.isEmpty(name)){
+                Toast.makeText(this, "请输入任务名", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Date startTime = null, endTime = null;
+            try {
+                startTime = format.parse(editFromDate.getText().toString());
+                endTime = format.parse(editToDate.getText().toString());
+            } catch (ParseException e) {
+                Toast.makeText(this, "请选择起止时间", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (startTime.after(endTime)){
+                Toast.makeText(this, "结束时间应不小于开始时间", Toast.LENGTH_SHORT).show();
+                return;
+            } 
+            // 传数据
             Intent newIntent = new Intent();
             newIntent.putExtra("type", type);
-            newIntent.putExtra("name", editTaskName.getText().toString());
-            newIntent.putExtra("start_time",editFromDate.getText().toString());
-            newIntent.putExtra("end_time",editToDate.getText().toString());
+            newIntent.putExtra("name", name);
+            newIntent.putExtra("start_time", startTime);
+            newIntent.putExtra("end_time", endTime);
             if (type ==  TaskFragment.CHANGE_ITEM){
                 newIntent.putExtra("id", oldIntent.getIntExtra("id", -1));
             }
-            setResult(RESULT_OK, newIntent); //todo 处理错误输入，task，group，subt
+            setResult(RESULT_OK, newIntent);
             finish();
         });
 

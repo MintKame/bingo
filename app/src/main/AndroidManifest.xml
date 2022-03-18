@@ -3,6 +3,8 @@
     package="com.bingo.android">
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
     <application
         android:name="org.litepal.LitePalApplication"
         android:allowBackup="true"
@@ -29,6 +31,9 @@
         <activity android:name=".ChangeInfoActivity" />
             android:launchMode="singleTask"/>
         <activity android:name=".LoginActivity"/>
+
+
+        <service android:name=".service.PetService"/>
     </application>
 
 </manifest>

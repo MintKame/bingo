@@ -1,8 +1,10 @@
 package com.bingo.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.bingo.android.db.Child;
+import com.bingo.android.db.Child;  
 
 import org.litepal.crud.DataSupport;
 
@@ -57,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         setIndexSelected(0); // 最初显示task界面
 
-        showPet();        // todo 显示桌面宠物
-
+        showPet();
     }
 
     //通过index判断当前加载哪个界面
@@ -85,23 +86,6 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-    /** 显示桌面宠物 */ // todo pet
-    private void showPet() {
-    /*
-        var layoutParam = new WindowManager.LayoutParams().apply {
-            //设置大小 自适应
-            width = WRAP_CONTENT;
-            height = WRAP_CONTENT;
-            flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL || WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-        };
-// 新建悬浮窗控件
-        View floatRootView = LayoutInflater.from(this).inflate(R.layout.activity_float_item, null);
-//设置拖动事件
-        floatRootView.setOnTouchListener(View.OnTouchListener ()->{
-            return false;
-        });
-// 将悬浮窗控件添加到WindowManager
-        windowManager.addView(floatRootView, layoutParam);
-    */
-    }
+    private void showPet(){
+     }
 }
