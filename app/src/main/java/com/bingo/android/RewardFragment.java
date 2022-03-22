@@ -77,8 +77,8 @@ public class RewardFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int point = MainActivity.child.getPoint();
-                int usePoint = rewardList.get(position).getTake_points();
+                long point = MainActivity.child.getPoint();
+                long usePoint = rewardList.get(position).getTake_points();
                 if (point < usePoint){
                     Toast.makeText(getContext(), "点数不足", Toast.LENGTH_SHORT).show();
                     return;

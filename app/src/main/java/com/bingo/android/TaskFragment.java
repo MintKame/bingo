@@ -142,8 +142,26 @@ public class TaskFragment extends Fragment {
             long points = selectedTask.getTotalCnt(); // 子任务数
 //            boolean inTime =  !new Date().after(selectedTask.getEnd_time()); // 按时
 //            if (!inTime) points *= 0.5;
-            // 存到账号
-            MainActivity.child.setPoint((int) (MainActivity.child.getPoint() + points));
+            // 更新账号：点数，任务总数，该类型的任务数
+            MainActivity.child.setPoint(MainActivity.child.getPoint() + points);
+            MainActivity.child.setFinish_total(MainActivity.child.getFinish_total() + 1);
+            switch (selectedTask.getType()){
+                case Task.IN_CLASS:
+                    MainActivity.child.setFinish_in( MainActivity.child.getFinish_in()+1);
+                    break;
+                case Task.OUT_CLASS:
+                    MainActivity.child.setFinish_out( MainActivity.child.getFinish_out()+1);
+                    break;
+                case Task.SPORT:
+                    MainActivity.child.setFinish_sport( MainActivity.child.getFinish_sport()+1);
+                    break;
+                case Task.HOUSEWORK:
+                    MainActivity.child.setFinish_housework( MainActivity.child.getFinish_housework()+1);
+                    break;
+                case Task.HOBBY:
+                    MainActivity.child.setFinish_hobby( MainActivity.child.getFinish_hobby()+1);
+                    break;
+            }
             MainActivity.child.save();
             // 提醒
             Toast.makeText(getContext(), "获得奖励：" + points, Toast.LENGTH_LONG).show();

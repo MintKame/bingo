@@ -5,23 +5,29 @@ import org.litepal.crud.DataSupport;
 import java.util.UUID;
 
 public class Child extends DataSupport {
-    private UUID cid = UUID.randomUUID();// todo
+    private UUID cid = UUID.randomUUID();
 
-    // 记录
-    private int point = 0;// todo
+    // todo 注册时填写
+    private String cphone;
 
-    private int finish_cnt = 0;// todo
+    private String name;
 
-    // 注册时填写
-    private String cphone;// todo
+    private boolean gender;
 
-    private String name;// todo
+    private int age;
 
-    private boolean gender;// todo
+    private int npc;
 
-    private int age;// todo
+    private long point = 0; // 记录 当前可用点数
 
-    private int npc;// todo
+    // todo 按类型，记录完成的任务数
+    private long finish_total = 0;
+    private long finish_in = 0;
+    private long finish_out = 0;
+    private long finish_sport = 0;
+    private long finish_housework = 0;
+    private long finish_hobby = 0;
+
 
     public UUID getCid() {
         return cid;
@@ -43,11 +49,11 @@ public class Child extends DataSupport {
         this.name = name;
     }
 
-    public int getPoint() {
+    public long getPoint() {
         return point;
     }
 
-    public void setPoint(int point) {
+    public void setPoint(long point) {
         this.point = point;
     }
 
@@ -75,11 +81,51 @@ public class Child extends DataSupport {
         this.npc = npc;
     }
 
-    public int getFinish_cnt() {
-        return finish_cnt;
+    public long getFinish_total() {
+        return finish_total;
     }
 
-    public void setFinish_cnt(int finish_cnt) {
-        this.finish_cnt = finish_cnt;
+    public void setFinish_total(long finish_cnt) {
+        this.finish_total = finish_cnt;
+    }
+
+    public long getFinish_in() {
+        return finish_in;
+    }
+
+    public void setFinish_in(long finish_in) {
+        this.finish_in = finish_in;
+    }
+
+    public long getFinish_out() {
+        return finish_out;
+    }
+
+    public void setFinish_out(long finish_out) {
+        this.finish_out = finish_out;
+    }
+
+    public long getFinish_sport() {
+        return finish_sport;
+    }
+
+    public void setFinish_sport(long finish_sport) {
+        this.finish_sport = finish_sport;
+    }
+
+    public long getFinish_housework() {
+        return finish_housework;
+    }
+
+    public void setFinish_housework(long finish_housework) {
+        this.finish_housework = finish_housework;
+    }
+
+    public long getFinish_hobby() {
+        return finish_hobby;
+    }
+
+    public void setFinish_hobby(long finish_hobby) {
+        this.finish_hobby = finish_hobby;
     }
 }

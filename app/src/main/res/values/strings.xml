@@ -1,6 +1,6 @@
 <resources>
 
-
+    <!-- 任务类型   -->
     <string name="select_task_type">选择任务类型</string>
 
     <string name="app_name">Bingo</string>

@@ -11,7 +11,7 @@ public class Reward extends DataSupport {
 
     private String name;
 
-    private int take_points;
+    private long take_points;
 
     private boolean state; // todo
 
@@ -37,11 +37,11 @@ public class Reward extends DataSupport {
         this.name = name;
     }
 
-    public int getTake_points() {
+    public long getTake_points() {
         return take_points;
     }
 
-    public void setTake_points(int take_points) {
+    public void setTake_points(long take_points) {
         this.take_points = take_points;
     }
 
