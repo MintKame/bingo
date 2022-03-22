@@ -1,0 +1,10 @@
+<resources>
+    <!--Task的类型，注意顺序和值一直    -->
+    <string-array name="taskType">
+        <item>课内作业</item>
+        <item>课外学习</item>
+        <item>运动</item>
+        <item>家务</item>
+        <item>兴趣爱好</item>
+    </string-array>
+</resources>

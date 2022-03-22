@@ -141,7 +141,7 @@ public class RewardFragment extends Fragment {
         if (requestCode == LEVEL_REWARD){
             if (type == CREATE_REWARD) createReward(data);
             else if (type == DELETE_REWARD) deleteReward(data.getIntExtra("id", -1));
-            else if (type == CHANGE_REWARD) createReward(data);
+            else if (type == CHANGE_REWARD) changeReward(data);
             showRewards();
         }
     }

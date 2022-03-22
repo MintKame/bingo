@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     RadioGroup radioGroup;
 
-    static Child child;
+    static Child child; // todo 使用时，直接从db获取
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

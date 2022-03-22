@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,19 +28,22 @@ public class TaskChangeActivity extends AppCompatActivity {
 
     EditText editTaskName, editFromDate, editToDate;
     Button taskCancelButton, taskConfirmButton, taskDelButton;
+    Spinner selectType;
+    int taskType;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_change);
 
         // find view
-        taskCancelButton = (Button) findViewById(R.id.taskCancelButton);
-        taskConfirmButton = (Button) findViewById(R.id.taskConfirmButton);
-        taskDelButton = (Button) findViewById(R.id.taskDelButton);
+        taskCancelButton = findViewById(R.id.taskCancelButton);
+        taskConfirmButton = findViewById(R.id.taskConfirmButton);
+        taskDelButton =  findViewById(R.id.taskDelButton);
 
-        editTaskName =(EditText)findViewById(R.id.editTaskGroupName);
-        editFromDate =(EditText)findViewById(R.id.editFromDate);
-        editToDate =(EditText)findViewById(R.id.editToDate);
+        editTaskName = findViewById(R.id.editTaskGroupName);
+        editFromDate = findViewById(R.id.editFromDate);
+        editToDate = findViewById(R.id.editToDate);
+        selectType = findViewById(R.id.selectType);
 
         // 处理传入信息
         Intent oldIntent = getIntent();
@@ -47,6 +52,8 @@ public class TaskChangeActivity extends AppCompatActivity {
             editTaskName.setText(oldIntent.getStringExtra("name"));
             editFromDate.setText(oldIntent.getStringExtra("start_time"));
             editToDate.setText(oldIntent.getStringExtra("end_time"));
+            taskType = oldIntent.getIntExtra("task_type", 0);
+            selectType.setSelection(taskType);
         } else {
             taskDelButton.setVisibility(View.INVISIBLE);
         }
@@ -59,11 +66,12 @@ public class TaskChangeActivity extends AppCompatActivity {
         // btn confirm task
         taskConfirmButton.setOnClickListener((View view)->{
             // 错误处理
-            String name = editTaskName.getText().toString();
+            String name = editTaskName.getText().toString(); // 任务名
             if (StringUtils.isEmpty(name)){
                 Toast.makeText(this, "请输入任务名", Toast.LENGTH_SHORT).show();
                 return;
             }
+            // 起止时间
             Date startTime = null, endTime = null;
             try {
                 startTime = format.parse(editFromDate.getText().toString());
@@ -75,13 +83,14 @@ public class TaskChangeActivity extends AppCompatActivity {
             if (startTime.after(endTime)){
                 Toast.makeText(this, "结束时间应不小于开始时间", Toast.LENGTH_SHORT).show();
                 return;
-            } 
+            }
             // 传数据
             Intent newIntent = new Intent();
             newIntent.putExtra("type", type);
             newIntent.putExtra("name", name);
             newIntent.putExtra("start_time", startTime);
             newIntent.putExtra("end_time", endTime);
+            newIntent.putExtra("task_type", taskType);
             if (type ==  TaskFragment.CHANGE_ITEM){
                 newIntent.putExtra("id", oldIntent.getIntExtra("id", -1));
             }
@@ -114,6 +123,19 @@ public class TaskChangeActivity extends AppCompatActivity {
                 return true;
             }
             return false;
+        });
+
+        // taskType spinner
+        selectType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                taskType = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another interface callback
+            }
         });
     }
 

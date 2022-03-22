@@ -40,12 +40,20 @@
                 android:inputType="date"
                 android:hint="截止时间" />
 
-            <EditText
-                android:id="@+id/editTextNumber"
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number" />
+                android:text="选择任务类型"
+                android:textColor="#44BDED"
+                android:textSize="18sp" />
+
+            <Spinner
+                android:id="@+id/selectType"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:entries="@array/taskType"
+                android:prompt="@string/select_task_type"
+                android:spinnerMode="dialog" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

@@ -131,6 +131,7 @@ public class TaskFragment extends Fragment {
         * 质量：
         *       家长决定 // todo
         * */
+//        todo taskType 存信息 用于分析
         finishButton.setOnClickListener((View v)->{
             selectedTask = DataSupport.find(Task.class, selectedTask.getId());
             if (selectedTask.getFinishCnt() < selectedTask.getTotalCnt()){
@@ -139,8 +140,8 @@ public class TaskFragment extends Fragment {
             }
             // 计算奖励
             long points = selectedTask.getTotalCnt(); // 子任务数
-            boolean inTime =  new Date().before(selectedTask.getEnd_time()); // 按时
-            if (!inTime) points *= 0.5;
+//            boolean inTime =  !new Date().after(selectedTask.getEnd_time()); // 按时
+//            if (!inTime) points *= 0.5;
             // 存到账号
             MainActivity.child.setPoint((int) (MainActivity.child.getPoint() + points));
             MainActivity.child.save();
@@ -273,6 +274,7 @@ public class TaskFragment extends Fragment {
         intent.putExtra("type", CHANGE_ITEM);
         intent.putExtra("id", task.getId());
         intent.putExtra("name", task.getName());
+        intent.putExtra("task_type", task.getType());
 
         intent.putExtra("start_time", format.format(task.getStart_time()));
         intent.putExtra("end_time", format.format(task.getEnd_time()));
@@ -300,6 +302,7 @@ public class TaskFragment extends Fragment {
         task.setName(data.getStringExtra("name"));
         task.setStart_time((Date) data.getSerializableExtra("start_time"));
         task.setEnd_time( (Date) data.getSerializableExtra("end_time"));
+        task.setType(data.getIntExtra("task_type", 0));
     }
 
     private void createTask(Intent data){
@@ -308,7 +311,6 @@ public class TaskFragment extends Fragment {
         setTask(data, task);
         task.save();
     }
-
 
     private void deleteTask(int id){
         // 找到task 并删除
@@ -361,7 +363,7 @@ public class TaskFragment extends Fragment {
         belongTask.save();
     }
 
-    private void deleteSubTask(int id){ // todo
+    private void deleteSubTask(int id){
         // 找到subTask 并删除
         SubTask subTask = DataSupport.find(SubTask.class, id);
         if (subTask == null) return;
@@ -384,6 +386,4 @@ public class TaskFragment extends Fragment {
 
         subTask.save();
     }
-
-
 }

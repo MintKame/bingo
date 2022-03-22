@@ -21,8 +21,8 @@ import java.util.ArrayList;
 
 public class AnalyzeFragment extends Fragment {
 
-    private BarChart barChart;
-    private BarData barData;
+//    private BarChart barChart;
+//    private BarData barData;
 
     private PieChart pieChart;
     private PieData pieData;
@@ -40,11 +40,11 @@ public class AnalyzeFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = View.inflate(getActivity(), R.layout.fragment_analyze, null);
 
-        barChart = view.findViewById(R.id.bar_chart);
+//        barChart = view.findViewById(R.id.bar_chart);
         pieChart = view.findViewById(R.id.pie_chart);
 
-        barData = getBarData(24, 10);
-        barChart.setData(barData);
+//        barData = getBarData(24, 10);
+//        barChart.setData(barData);
         return view;
     }
     /**

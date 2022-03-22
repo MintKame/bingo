@@ -10,6 +10,13 @@ public class Task extends DataSupport {
     public static final int TASK_IN = 1; // 按时完成
     public static final int TASK_OUT = 2; // 超时完成
 
+    // task的类型，对应arrays.xml中的taskType
+    public static final int IN_CLASS = 0;
+    public static final int OUT_CLASS = 1;
+    public static final int SPORT = 2;
+    public static final int HOUSEWORK = 3;
+    public static final int HOBBY = 4;
+
     private int id;
 
     private String name;
@@ -25,6 +32,8 @@ public class Task extends DataSupport {
     private long finishCnt = 0;  // 已完成子任务数
 
     private long totalCnt = 0;  // 所有子任务数
+
+    private int type;
 
     public int getId() {
         return id;
@@ -84,5 +93,13 @@ public class Task extends DataSupport {
 
     public void setTotalCnt(long totalCnt) {
         this.totalCnt = totalCnt;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }
