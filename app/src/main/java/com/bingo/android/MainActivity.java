@@ -58,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setIndexSelected(0); // 最初显示task界面
-
-        showPet();
     }
 
     //通过index判断当前加载哪个界面
@@ -85,7 +83,4 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.fragment , fragment);
         transaction.commit();
     }
-
-    private void showPet(){
-     }
 }

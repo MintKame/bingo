@@ -73,7 +73,7 @@ public class RewardFragment extends Fragment {
         );
         listView.setAdapter(adapter);
 
-        // list: 长按修改或删除，按兑换
+        // 按兑换奖励
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -91,6 +91,7 @@ public class RewardFragment extends Fragment {
             }
         });
 
+        // 长按修改或删除奖励
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -131,6 +132,7 @@ public class RewardFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    // 处理从RewardChangeActivity传来的信息
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

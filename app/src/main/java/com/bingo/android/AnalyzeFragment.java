@@ -58,7 +58,6 @@ public class AnalyzeFragment extends Fragment {
     /**
      *用来处理数据
      */
-
     private List<PieEntry> getPieChartData() {
         List<PieEntry> mPie = new ArrayList<>();
 

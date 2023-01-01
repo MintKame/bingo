@@ -123,7 +123,7 @@ public class TaskFragment extends Fragment {
             }
         });
 
-        /*  完成任务
+        /*  完成任务，计算获取的点数
         * 奖励点数 = 子任务数 * 效率 * 质量
         * 效率：
         *       按时完成 = 1
@@ -207,6 +207,7 @@ public class TaskFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    // 处理从TaskChangeActivity传来的数据
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

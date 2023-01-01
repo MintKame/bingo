@@ -24,9 +24,9 @@ public class TimerActivity extends AppCompatActivity {
 
     TimeView timeView;
 
-    long tmpDuration = 0, taskDuration;
+    long tmpDuration = 0, taskDuration; // 本次计时，本任务总计时
 
-    boolean isStop = true;
+    boolean isStop = true; // 记录当前计时器状态（暂停、计时）
 
     Task task;
 
